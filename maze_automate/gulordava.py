@@ -1,6 +1,6 @@
 import torch
 import logging
-from gulordava_code import dictionary_corpus
+from gulordava_code import dictionary_corpus, model
 from lang_model import lang_model
 import utils
 import sys  # because pickle is dumb and can't deal with things in other locations
@@ -16,7 +16,10 @@ class gulordava_model(lang_model):
         with open("gulordava_data/hidden650_batch128_dropout0.2_lr20.0.pt", 'rb') as f:
             print("Loading the model")
             # to convert model trained on cuda to cpu model
-            self.model = torch.load(f, map_location=lambda storage, loc: storage)
+            # self.model = torch.load(f, map_location=lambda storage, loc: storage)
+            # use state dicts instead
+            self.model = model.RNNModel('LSTM', 50001, 650, 650, 2, 0.2)
+            self.model.load_state_dict(torch.load('gulordava_data/model_weights.pth', weights_only=True))
         self.model.eval()  # put model in eval mode
         self.model.cpu()  # put it on cpu
         self.device = torch.device("cpu")  # what sort of data model is stored on
