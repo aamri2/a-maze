@@ -1,3 +1,10 @@
 *~
 ibex-master
 
+*.pyc
+.old-env
+
+*.bin
+*.pt
+*.pth
+*.vocab

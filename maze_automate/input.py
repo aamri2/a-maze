@@ -17,7 +17,7 @@ def read_input(filename):
     item_to_info = a dictionary of item numbers as keys and a pair of lists (conditions, sentences) as value
     sentences =  a list of sentences grouped by item number (ie will get matching distractors)'''
     all_sentences = {}
-    with open(filename, 'r') as f:
+    with open(filename, 'r', encoding='utf-8') as f:
         reader = csv.reader(f, delimiter=";", quotechar='"')
         for row in reader:
             tag = row[0]

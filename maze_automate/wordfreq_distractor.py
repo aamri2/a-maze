@@ -89,6 +89,41 @@ class wordfreq_English_dict(wordfreq_dict):
                     dict[word] * 10 ** 9)  # we canonically calculate frequency as log occurrences/1 billion words
                 self.words.append(distractor(word, freq))
 
+
+class wordfreq_Hindi_dict(wordfreq_dict):
+    """Dictionary built using word freq for frequencies
+     Words need to be in wordfreq's vocab, also in include file if provided
+     and not in exclude file
+     words must be lowercase alpha only"""
+
+    def __init__(self, params={}):
+        exclude = params.get("exclude_words", "exclude.txt")
+        include = params.get("include_words", "hindi_data/vocab.txt")
+        dict = wordfreq.get_frequency_dict('en')
+        keys = dict.keys()
+        self.words = []
+        exclusions = []
+
+        if exclude is not None:
+            with open(exclude, "r", encoding="utf-8") as f:
+                for line in f:
+                    word = line.strip()
+                    exclusions.append(word)
+        inclusions = []
+        if include is not None:
+            with open(include, "r", encoding="utf-8") as f:
+                for line in f:
+                    word = line.strip()
+                    inclusions.append(word)
+            words = list(set(inclusions) & set(keys) - set(exclusions))
+        else:
+            words = list(set(keys) - set(exclusions))
+        for word in words:
+            if re.match("^[\u0900-\u097F]*$", word): # hindi character set
+                freq = math.log(
+                    dict[word] * 10 ** 9)  # we canonically calculate frequency as log occurrences/1 billion words
+                self.words.append(distractor(word, freq))
+
 class wordfreq_French_dict(wordfreq_dict):
     """Dictionary built using word freq for frequencies
      Words need to be in wordfreq's vocab, also in include file if provided
@@ -124,23 +159,21 @@ class wordfreq_French_dict(wordfreq_dict):
                 self.words.append(distractor(word, freq))
 
 
-def get_frequency(word):
+def get_frequency(word, lang='en'):
     """"returns frequency aligned with wf dictionary"""
-    return wordfreq.zipf_frequency(word, 'en') * math.log(10)  # rescale to fit
+    return wordfreq.zipf_frequency(word, lang) * math.log(10)  # rescale to fit
 
 
-def get_thresholds(words):
+def get_thresholds(words, lang='en'):
     """given words, returns min and max length to use"""
     lengths = []
     freqs = []
     for word in words:
         stripped = utils.strip_punct(word)
         lengths.append(len(stripped))
-        freqs.append(get_frequency(stripped))
+        freqs.append(get_frequency(stripped, lang=lang))
     min_length = min(min(lengths), 15)
     max_length = max(max(lengths), 4)
     min_freq = min(min(freqs), 11)
     max_freq = max(max(freqs), 3)
     return min_length, max_length, min_freq, max_freq
-
-#

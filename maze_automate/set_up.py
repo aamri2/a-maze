@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(description='Download and set-up files needed f
 
 parser.add_argument('--gulordava', help="For gulordava model", action="store_true")
 parser.add_argument('--french', help="for French model", action="store_true")
+parser.add_argument('--hindi', help="for Hindi model", action="store_true")
 
 args = parser.parse_args()
 # need to check that all needed modules are installed
@@ -81,6 +82,19 @@ def download_one_b():
     else:
         print("Some required packages are missing. Please install packages and try again.")
 
+def download_hindi():
+    check=check_pkgs(['torch'])
+    if check:
+        code_dir = 'hindi_code'
+        data_dir = 'hindi_data'
+        make_dirs([code_dir, code_dir + '/vocabdata', data_dir])
+        for file in ['data.py', 'model.py', 'vocabdata/segm_filtered.vocab']:
+            if not os.path.exists(f'{code_dir}/{file}'):
+                urllib.request.urlretrieve(f'https://raw.githubusercontent.com/iccazzos/hindi_lstm/main/{file}', f'{code_dir}/{file}')
+        if not os.path.exists(f'{data_dir}/fortyepochs.pt') or not os.path.exists(f'{data_dir}/hindimorfessor.bin'):
+            print('Hindi model cannot be downloaded automatically. Please put files fortyepochs.pt and hindi_morfessor.bin in hindi_data.')
+    else:
+        print("Some required packages are missing. Please install packages and try again.")
 
 def check_pkgs(packages):
     '''Given a list of packages, checks if they are installed
@@ -108,4 +122,6 @@ if args.gulordava:
     download_gulordava()
 elif args.french:
     download_french()
+elif args.hindi:
+    download_hindi()
 check_pkgs(['wordfreq','nltk'])
